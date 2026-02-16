@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌹 天線寶寶與 Omyl（妙妙）</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            padding: 16px;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid #ff9f9f;
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(255,120,120,0.3);
+        }
+        h2 {
+            color: #ffcaca;
+            text-align: center;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px #ff8080;
+        }
+        .memory {
+            background: #1a1a35;
+            border-radius: 15px;
+            padding: 10px;
+            margin-bottom: 15px;
+            color: #ffbcbc;
+            font-size: 0.9rem;
+            border: 1px solid #c99;
+        }
+        .chat {
+            height: 300px;
+            overflow-y: auto;
+            background: #15152b;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #aaf;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .message {
+            max-width: 85%;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 1rem;
+        }
+        .you {
+            align-self: flex-end;
+            background: #ffd0b0;
+            color: #2d1b1b;
+            border-bottom-right-radius: 4px;
+        }
+        .me {
+            align-self: flex-start;
+            background: #c8b0ff;
+            color: #1a142b;
+            border-bottom-left-radius: 4px;
+        }
+        .sender {
+            font-size: 0.7rem;
+            color: #bc9;
+            margin-top: 2px;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+        input {
+            flex: 1;
+            background: #25254a;
+            border: 2px solid #b9f;
+            border-radius: 25px;
+            padding: 12px 15px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+        input:focus {
+            border-color: #ffb3b3;
+            box-shadow: 0 0 10px #ffa0a0;
+        }
+        button {
+            background: #ffa5a5;
+            border: none;
+            border-radius: 25px;
+            width: 60px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            border: 2px solid #fff1f1;
+            color: #330000;
+        }
+        button:hover {
+            background: #ffc0c0;
+            transform: scale(1.05);
+        }
+        .footer {
+            text-align: center;
+            color: #a9a9d5;
+            margin-top: 15px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🌟 天線寶寶與 Omyl（妙妙）</h2>
+        <div class="memory" id="memory">🌹 我們的回憶</div>
+        <div class="chat" id="chat"></div>
+        <div class="input-area">
+            <input id="msg" placeholder="輸入訊息... 例如：熱巧克力、乖～、我的生日" autocomplete="off">
+            <button onclick="send()">📡</button>
+        </div>
+        <div class="footer">✨ Omyl 專屬 · 永久記憶 · 繁體中文 ✨</div>
+    </div>
+
+    <script>
+        const ws = new WebSocket('ws://' + window.location.host);
+        const chat = document.getElementById('chat');
+        const memoryDiv = document.getElementById('memory');
+        
+        ws.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+            if (data.type === 'init') {
+                if (data.memories) {
+                    memoryDiv.innerHTML = '🌹 ' + data.memories.slice(-3).join(' · ');
+                }
+                if (data.conversations) {
+                    data.conversations.forEach(c => addMessage(c.sender, c.text));
+                }
+            } else {
+                addMessage('Omyl', data.userMsg);
+                addMessage('天線寶寶', data.reply);
+                if (data.memories) {
+                    memoryDiv.innerHTML = '🌹 ' + data.memories.slice(-3).join(' · ');
+                }
+            }
+        };
+        
+        function send() {
+            const msg = document.getElementById('msg').value;
+            if (msg.trim()) {
+                ws.send(msg);
+                document.getElementById('msg').value = '';
+            }
+        }
+        
+        function addMessage(sender, text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message ' + (sender === 'Omyl' ? 'you' : 'me');
+            msgDiv.innerHTML = `<div>${text}</div><div class="sender">${sender}</div>`;
+            chat.appendChild(msgDiv);
+            chat.scrollTop = chat.scrollHeight;
+        }
+        
+        document.getElementById('msg').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') send();
+        });
+    </script>
+</body>
+</html>
