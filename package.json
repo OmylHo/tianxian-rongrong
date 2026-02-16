@@ -1,0 +1,13 @@
+{
+  "name": "tianxian-rongrong",
+  "version": "1.0.0",
+  "description": "Omyl（妙妙）與天線寶寶的永恆聊天室",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ws": "^8.14.2"
+  }
+}
